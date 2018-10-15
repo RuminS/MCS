@@ -9,11 +9,11 @@ public class myDTW extends DTWHelper {
 	public float DTWDistance(Field unknown, Field known) {
 		// Methode qui calcule le score de la DTW 
 		// entre 2 ensembles de MFCC
-		int n = unknown.getLength();
-		int m = known.getLength();
+		int n = unknown.getLength() + 1;
+		int m = known.getLength() + 1;
 		float left, up, upleft;
 		int w0, w1, w2;
-		w0 = 1; w1 = 2; w2 = 0;
+		w0 = 1; w1 = 2; w2 = 1;
 		float[][] result = new float[n][m]; // matrice d'alignement entre unknown et known
 		float d, score;
 		
@@ -23,14 +23,14 @@ public class myDTW extends DTWHelper {
 		for (int i = 1; i < m; i++) {
 			result[0][i] = Float.MAX_VALUE;
 		}
-		for (int i = 0 ; i < n ; i++) {
+		for (int i = 1 ; i < n ; i++) {
 			result[i][0] = Float.MAX_VALUE;
-			for (int j = 0 ; j < m ; j++) {
+			for (int j = 1 ; j < m ; j++) {
 				d = distanceCalculator.distance(unknown.getMFCC(i-1), 
 						known.getMFCC(j-1));
-				left = result[i][j-1];
-				upleft = result[i-1][j-1];
-				up = result[i-1][j];
+				left = result[i][j-1] + w0*d;
+				upleft = result[i-1][j-1] + w1*d;
+				up = result[i-1][j] + w2*d;
 				result[i][j] = Float.min(left, Float.min(upleft, up));
 			}
 		}

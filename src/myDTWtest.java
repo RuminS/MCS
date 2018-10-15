@@ -15,7 +15,7 @@ public class myDTWtest {
 
 		public static void main(String[] args) throws IOException, InterruptedException {
 			
-			//DTWHelper myDTWHelper= new myDTW();
+			DTWHelper myDTWHelper= new myDTW();
 			DTWHelper DTWHelperDefault= new DTWHelperDefault();
 			 
 			// Chemin de recherche des fichiers sons
@@ -41,10 +41,10 @@ public class myDTWtest {
 	        // Si on veut rajouter de nouveaux mots, il suffit de repeter les etapes 1 a 3
 	        
 	        // Par ex., on peut tester que la distance entre alpha et alpha c'est 0
-	       // float mydistanceAlphaAlpha= myDTWHelper.DTWDistance(alphaField, alphaField);
+	        float mydistanceAlphaAlpha= myDTWHelper.DTWDistance(alphaField, alphaField);
 	        float distanceAlphaAlphadefault= DTWHelperDefault.DTWDistance(alphaField, alphaField);
 	        
-	       // System.out.println("myDTW - valeur distance Alpha-Alpha calculee : "+mydistanceAlphaAlpha);
+	        System.out.println("myDTW - valeur distance Alpha-Alpha calculee : "+mydistanceAlphaAlpha);
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Alpha calculee : "+distanceAlphaAlphadefault);
 		
 	        // Calcul de la distance entre Alpha et Bravo
@@ -64,10 +64,10 @@ public class myDTWtest {
 	        // Etape 3. Construction du Field (ensemble de MFCC) de Bravo
 	        Field bravoField= new Field(mfccsBravo);
 	        
-	       //float mydistanceAlphaBravo= myDTWHelper.DTWDistance(alphaField, bravoField);
+	        float mydistanceAlphaBravo= myDTWHelper.DTWDistance(alphaField, bravoField);
 	        float distanceAlphaBravodefault= DTWHelperDefault.DTWDistance(alphaField, bravoField);
 	        
-	        //System.out.println("myDTW - valeur distance Alpha-Bravo calculee : "+mydistanceAlphaBravo);
+	        System.out.println("myDTW - valeur distance Alpha-Bravo calculee : "+mydistanceAlphaBravo);
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Bravo calculee : "+distanceAlphaBravodefault);
 		}
 

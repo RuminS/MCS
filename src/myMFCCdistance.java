@@ -28,11 +28,18 @@ public class myMFCCdistance extends MFCCHelper {
 		// supprime le bruit de la MFCC passee en parametre
 		// soustrait chaque coef du bruit a chaque coef du la MFCC 
 		// passee en parametre
-		float[] tab = null;
+		int l = mfcc.getLength();
+		float[] tab = new float[l] ;
+		float[] signal = new float[l];
+		
+		float[] signalMfcc = mfcc.getSignal();
+		float[] signalNoise = noise.getSignal();
+		
 		for (int i = 0; i < mfcc.getLength(); i++) {
 			tab[i] =  mfcc.getCoef(i) - noise.getCoef(i);
+			signal[i] = signalMfcc[i] - signalNoise[i];
 		}
-		return new MFCC(tab, null); // 
+		return new MFCC(tab, signal); 
 	}
 
 }
