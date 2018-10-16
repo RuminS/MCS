@@ -96,6 +96,9 @@ public class myDTWtest2 {
 		    	field1 = new Field(mfcc1);
 		        //System.out.println(field1.toString());
 		        
+		    	System.out.println("Comparaison de "+ordre1+" avec le reste des fichiers.");
+		    	System.out.println("-------------------------------------------------------------------------------");
+		    	
 		    	// Comparer field1 et field1 avec le DTW par defaut et myDTW
 		    	mydistance= myDTWHelper.DTWDistance(field1, field1);
 		    	distanceDefault= DTWHelperDefault.DTWDistance(field1, field1);
@@ -126,14 +129,15 @@ public class myDTWtest2 {
 		
 		
 		public static void main(String[] args) throws IOException, InterruptedException {
-			String corpusBruite = "/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv";
+			/*String corpusBruite = "/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv";
 			String corpusNonBruite = "/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv";
 			System.out.println("------------------------------------------------TEST CORPUS BRUITE ------------------------------------------------");
 			testCorpus(corpusBruite);
 			System.out.println();System.out.println();
 			System.out.println("------------------------------------------------TEST CORPUS NON BRUITE ------------------------------------------------");
 			//testCorpus(corpusNonBruite);
-			
+			*/
+			testCorpus("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio");
 			/*
 			int MFCCLength;
 			DTWHelper myDTWHelper= new myDTW();
@@ -199,7 +203,7 @@ public class myDTWtest2 {
 	        
 	        System.out.println("myDTW - valeur distance Alpha-Bravo calculee : "+mydistanceAlphaBravo);
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Bravo calculee : "+distanceAlphaBravodefault);
-	        */
+	       */
 	        
 		}
 }
