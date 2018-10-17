@@ -137,7 +137,7 @@ public class myDTWtest2 {
 			System.out.println("------------------------------------------------TEST CORPUS NON BRUITE ------------------------------------------------");
 			//testCorpus(corpusNonBruite);
 			*/
-			testCorpus("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio");
+			//testCorpus("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio");
 			/*
 			int MFCCLength;
 			DTWHelper myDTWHelper= new myDTW();
@@ -204,7 +204,10 @@ public class myDTWtest2 {
 	        System.out.println("myDTW - valeur distance Alpha-Bravo calculee : "+mydistanceAlphaBravo);
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Bravo calculee : "+distanceAlphaBravodefault);
 	       */
-	        
+	        myDTW m = new myDTW();
+			m.matriceDeConfusion("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio/test",
+					"/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio/reference", 2);
+			
 		}
 }
 
