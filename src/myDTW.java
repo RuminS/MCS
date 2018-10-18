@@ -15,6 +15,7 @@ import fr.enseeiht.danck.voice_analyzer.Extractor;
 import fr.enseeiht.danck.voice_analyzer.Field;
 import fr.enseeiht.danck.voice_analyzer.MFCC;
 import fr.enseeiht.danck.voice_analyzer.WindowMaker;
+import fr.enseeiht.danck.voice_analyzer.defaults.DTWHelperDefault;
 
 public class myDTW extends DTWHelper {
 
@@ -89,9 +90,9 @@ public class myDTW extends DTWHelper {
 	 * @throws InterruptedException 
 	 * */
 	public float matriceDeConfusion(String testAbsolutePath, String referenceAbsolutePath, int nbrLocuteur) throws IOException, InterruptedException{
-		int nbrOrdre, trace, indexMin;
+		int nbrOrdre, indexMin, trace, horsDiag;
 		int[][] matriceConf;
-		float distanceMin, d;
+		float distanceMin, d, tauxReconnaissance, tauxErreur;
 		
 		int mfccTestLength, mfccRefLength;
 		MFCC[] mfccTest, mfccRef;
@@ -119,8 +120,10 @@ public class myDTW extends DTWHelper {
 		// Appel a l'extracteur par defaut (calcul des MFCC)
 	    Extractor extractor = Extractor.getExtractor();
 	    WindowMaker windowMaker = new MultipleFileWindowMaker(testFiles);
-	    WindowMaker windowMaker2 = new MultipleFileWindowMaker(refFiles);
+	    WindowMaker windowMaker2 ;//= new MultipleFileWindowMaker(refFiles);
+	    DTWHelper DTWHelperDefault= new DTWHelperDefault();
 	    System.out.println("nblocuteur = "+nbrLocuteur);
+	    List<String> ls = new ArrayList<>();
 		for(int i = 0; i < nbrOrdre; i++) {// pour chaque fichier dans test, comparer avec les fichiers dans ref
 			// Recuperer le MFCC  du fichier dans test
 			mfccTestLength = myDTWtest2.FieldLength(testFiles.get(i));
@@ -136,28 +139,37 @@ public class myDTW extends DTWHelper {
 				distanceMin = Float.MAX_VALUE;
 				for (int j = 0 ; j < nbrOrdre; j++) {
 					int index = j*nbrLocuteur + l;
-					System.out.println("index = "+index);
+					//System.out.println("index = "+index+refFiles.get(index));
 					// Recuperer le MFCC  du fichier dans ref
-					mfccRefLength = myDTWtest2.FieldLength(refFiles.get(j));
+					mfccRefLength = myDTWtest2.FieldLength(refFiles.get(index));
 					mfccRef = new MFCC[mfccRefLength];
+					ls.add(refFiles.get(index));
+					windowMaker2 = new MultipleFileWindowMaker(ls);
 					for (int k = 0; k < mfccRefLength; k++) {
 						mfccRef[k] = extractor.nextMFCC(windowMaker2);
 					}
 					// Construire le field de mfccRef
 					fieldRef = new Field(mfccRef);
 					// Calculer la distance entre fieldTest et fieldRef 
-					d = DTWDistance(fieldTest, fieldRef);
+					d = DTWHelperDefault.DTWDistance(fieldTest, fieldRef);
+					System.out.println("d = " + d+ "[ "+testFiles.get(i)+" VS. "+refFiles.get(index)+" ]");
 					int temporar = j+l;
-					System.out.println("i = "+j);
+					//System.out.println("num locuteur : " + l);
+					//System.out.println("num ordre : " + j);
+					//System.out.println("temporar = " + temporar);
+					//System.out.println("i = "+j);
 					//System.out.println("myDTW - valeur distance "+testFiles.get(i).toString()+"-"+
 					//refFiles.get(i)+"   "+d);
 					if (d < distanceMin) {
 						distanceMin = d;
 						indexMin = j;
 					}
+					ls.clear();
 				}
-				matriceConf[indexMin][i]++;
+				matriceConf[i][indexMin]++;
+				
 			}
+			
 		}
 		
 		// print matrice de confusion
@@ -169,10 +181,18 @@ public class myDTW extends DTWHelper {
 		}
 		
 		trace = 0;
+		horsDiag = 0;
 		for (int i = 0; i < nbrOrdre; i++) {
 			trace += matriceConf[i][i];
+			for (int j = 0; j < nbrOrdre; j++) {
+				if (i!=j) {
+					horsDiag += matriceConf[i][j];
+				}
+			}
 		}
-		return trace/(nbrOrdre);
+		tauxReconnaissance = trace/(nbrOrdre*nbrLocuteur);
+		tauxErreur = horsDiag/(nbrOrdre*nbrLocuteur);
+		return tauxReconnaissance;
 		
 	}
 
