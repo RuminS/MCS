@@ -120,7 +120,7 @@ public class myDTW extends DTWHelper {
 		// Appel a l'extracteur par defaut (calcul des MFCC)
 	    Extractor extractor = Extractor.getExtractor();
 	    WindowMaker windowMaker = new MultipleFileWindowMaker(testFiles);
-	    WindowMaker windowMaker2 ;//= new MultipleFileWindowMaker(refFiles);
+	    WindowMaker windowMaker2 ;
 	    DTWHelper DTWHelperDefault= new DTWHelperDefault();
 	    System.out.println("nblocuteur = "+nbrLocuteur);
 	    List<String> ls = new ArrayList<>();
@@ -190,8 +190,11 @@ public class myDTW extends DTWHelper {
 				}
 			}
 		}
-		tauxReconnaissance = trace/(nbrOrdre*nbrLocuteur);
-		tauxErreur = horsDiag/(nbrOrdre*nbrLocuteur);
+		tauxReconnaissance = (float) (((float)trace/(float)(nbrOrdre*nbrLocuteur))*100.);
+		tauxErreur = (float) (float)horsDiag/(float)(nbrOrdre*nbrLocuteur)*100;
+		System.out.println("trace = "+trace+" somme totale"+nbrOrdre*nbrLocuteur);
+		System.out.println("taux de reconnaissance = "+tauxReconnaissance+"%");
+		System.out.println("taux d'erreur = "+tauxErreur+"%");
 		return tauxReconnaissance;
 		
 	}

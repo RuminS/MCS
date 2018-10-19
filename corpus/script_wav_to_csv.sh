@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for folder in 'dronevolant_bruite' 'dronevolant_nonbruite'
+for folder in 'dronevolant_nonbruite_enregistrement_perso'
 do 
 	mkdir $folder'_csv'
 	cd $folder
