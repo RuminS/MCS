@@ -4,12 +4,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Comparator;
 import java.util.List;
 
-import com.sun.org.apache.bcel.internal.generic.FLOAD;
-
+import com.sun.org.apache.*;
 import fr.enseeiht.danck.voice_analyzer.DTWHelper;
 import fr.enseeiht.danck.voice_analyzer.Extractor;
 import fr.enseeiht.danck.voice_analyzer.Field;
