@@ -155,3 +155,8 @@ acs-*.bib
 # knitr
 *-concordance.tex
 /bin/
+
+# IGNORE .WAV FILES AND .CSV FILES
+*.wav
+corpus/dronevolant_bruite_csv
+corpus/dronevolant_nonbruite_csv
