@@ -154,3 +154,4 @@ acs-*.bib
 
 # knitr
 *-concordance.tex
+/bin/

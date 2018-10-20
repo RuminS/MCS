@@ -205,8 +205,8 @@ public class myDTWtest2 {
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Bravo calculee : "+distanceAlphaBravodefault);
 	       */
 	        myDTW m = new myDTW();
-			m.matriceDeConfusion("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio/test",
-					"/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/test_res/audio/reference", 2);
+			m.matriceDeConfusion("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/test",
+					"/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/reference", 4);
 			
 		}
 }
