@@ -207,6 +207,7 @@ public class myDTWtest2 {
 	        myDTW m = new myDTW();
 			m.matriceDeConfusion("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/test",
 					"/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/reference", 4);
+
 			
 		}
 }

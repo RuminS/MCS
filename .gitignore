@@ -160,3 +160,6 @@ acs-*.bib
 *.wav
 corpus/dronevolant_bruite_csv
 corpus/dronevolant_nonbruite_csv
+
+#compte rendu ignorer .pdf
+*.pdf
