@@ -1,5 +1,6 @@
 
 import java.io.File;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
@@ -14,8 +15,15 @@ import java.nio.file.WatchService;
 import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchEvent.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+
+import org.jcp.xml.dsig.internal.dom.ApacheCanonicalizer;
 
 import fr.enseeiht.danck.voice_analyzer.DTWHelper;
 import fr.enseeiht.danck.voice_analyzer.Extractor;
@@ -23,9 +31,11 @@ import fr.enseeiht.danck.voice_analyzer.Field;
 import fr.enseeiht.danck.voice_analyzer.MFCC;
 import fr.enseeiht.danck.voice_analyzer.WindowMaker;
 import fr.enseeiht.danck.voice_analyzer.defaults.DTWHelperDefault;
-
+import Jama.*;
+import java.math.*;
 public class myDTWtest2 {
-
+		
+		static int nbOrdres = 9;
 		//protected static final int MFCCLength = 13;
 		
 		// Fonction permettant de calculer la taille des Fields 
@@ -127,8 +137,285 @@ public class myDTWtest2 {
 		    }
 		}
 		
+		/*Fonction de calcul de la moyenne des MFCCs sous la forme d'un vecteur de dimension 13*/
+		public static double[] moyenneField (Field field){
+			double[] tabRetour=new double[13];
+			for (int i=0; i<13; i++){
+				tabRetour[i]=0.0;		
+			}
+			MFCC mfcc;
+			double [][] tabTraduit = new double[field.getLength()][13];
+			for (int i = 0; i< field.getLength(); i++){
+				mfcc = field.getMFCC(i);
+				for (int j = 0; j<13; j++)
+					tabTraduit[i][j] = mfcc.getCoef(j);
+			}
+			
+			for (int i = 0; i< field.getLength(); i++){
+				for (int j = 0; j<13; j++)
+					tabRetour[j] = tabRetour[j] + tabTraduit[i][j];
+			}
+			for (int i=0; i<13; i++){
+				tabRetour[i] = tabRetour[i]/field.getLength();
+			}
+			return tabRetour;
+		}
 		
-		public static void main(String[] args) throws IOException, InterruptedException {
+		public static double[] moyenne(double[][] matriceX){
+			double[] resultat = new double[13];
+			for (int i = 0; i< 13; i++)
+				resultat[i] = 0;
+			for (int j = 0; j < matriceX[0].length; j++){
+				for (int i = 0; i < matriceX.length; i++)
+					resultat[j] = resultat[j] + matriceX[i][j];
+				resultat[j] = resultat[j]/matriceX.length;
+			}
+			return resultat;
+		}
+		
+		public static double[] retranche(double[] m1, double[] m2){
+			
+			double[] tabRetour= new double[m1.length];
+			for(int i=0 ; i<m1.length; i++){
+				tabRetour[i]=m1[i]-m2[i];
+			}
+			
+			return tabRetour;
+		}
+		
+		public static double[][] matriceCentre (String referenceAbsolutePath) throws IOException, InterruptedException{
+					
+			int mfccRefLength;
+			MFCC[] mfccRef;
+			double[] gravite;
+			myDTW m = new myDTW();
+			List<String> refFiles = m.extractFilesInFolder(referenceAbsolutePath);
+			double [][] matrice=new double[13][refFiles.size()];
+			double[][] tabRetour=new double[refFiles.size()][13];
+			Extractor extractor = Extractor.getExtractor();
+		    WindowMaker windowMaker = new MultipleFileWindowMaker(refFiles);
+			for (int i = 0 ; i<refFiles.size(); i++){
+				mfccRefLength = FieldLength(refFiles.get(i));
+				mfccRef = new MFCC[mfccRefLength];
+				for (int k = 0; k < mfccRefLength; k++) {
+					mfccRef[k] = extractor.nextMFCC(windowMaker);
+				}
+				Field fieldRef = new Field(mfccRef);
+				tabRetour[i]=moyenneField(fieldRef);
+			}
+			gravite=moyenne(tabRetour);
+			
+			for(int j=0; j<refFiles.size() ; j++){
+				tabRetour[j]=retranche(tabRetour[j], gravite);
+			}
+			
+			for(int i=0; i<refFiles.size(); i++){
+				for(int j=0; j<13; j++){
+					matrice[j][i]=tabRetour[i][j];
+				}
+			}
+			
+			return matrice;
+		}
+		//multiplication de la matrice A et de la B : AxB
+		public static double[][] multiplier(double[][] MA, double[][] MB) throws Exception{
+
+			double[][] MC;
+			int l,c;
+			
+			if(MA[0].length != MB.length){
+				throw new Exception("La multiplication de deux matrices n'est possible que si le nombre de colonne du premier est égal au nombre de ligne du second!!");
+			}
+			 
+			 /*if(MA.length * MA[0].length < MB.length * MB[0].length){
+				l= MB.length;
+				c= MB[0].length;
+			 }else{
+				 l= MA.length;
+				 c= MA[0].length;
+			 }*/
+			l = MA.length;
+			c = MB[0].length;
+			 
+			 MC = new double[l][c];
+			 
+			 l = 0;
+		     for (int i = 0;i < MA.length;i++){ /// Ligne de MA
+		    	 c = 0;
+	            for (int n = 0;n < MB[0].length;n++){ /// colonne de  MB
+	            	
+	            	double calcul= 0;
+	                for (int m = 0;m < MB.length;m++){  /// colone de MA et ligne de MB
+	                    calcul += MA[i][m] * MB[m][n];
+	                }
+	                MC[l][c] = calcul;
+	                c++;
+	            }
+	            l++;
+		     }
+
+			return MC;
+		}
+		
+		public static double[][] transpose(double[][] matrice){
+			double[][] matriceRetour=new double[matrice[0].length][matrice.length];
+			int n=matrice.length;
+			  for (int i = 0; i < n; i++) {
+		            for (int j = 0; j < matrice[0].length; j++) {
+		                matriceRetour[j][i] = matrice[i][j];
+		            }
+		      }
+			  
+			  return matriceRetour;
+		}
+		
+		public static double[][] matriceVarCov(double[][] matrice)throws Exception{
+			double[][] matriceRetour;/*=new double[matrice[0].length][matrice[0].length];*/
+			
+			//System.out.println(matrice.length + " " + matrice[0].length);
+			double[][] trans = transpose(matrice);
+			//System.out.println(trans.length + " " + trans[0].length);
+
+			/*double[][] mul = {{1,2},{1,2},{1,2}};
+			double[][] mul2 = {{2,1},{2,1}};
+			matriceRetour = multiplier(mul,mul2);*/
+			
+			matriceRetour=multiplier(trans, matrice);
+			
+			//System.out.println(matriceRetour.length + " " + matriceRetour[0].length);
+			
+			for(int i=0; i<matriceRetour.length; i++){
+				for(int j=0; j<matriceRetour.length; j++){
+					matriceRetour[i][j]=matriceRetour[i][j]/matrice.length;
+				}
+			}
+			return matriceRetour;
+		}
+		
+		public static double[][] getVectPropres(double[][] matrice){
+			  Matrix matrix= new Matrix(matrice);
+			  EigenvalueDecomposition e = matrix.eig();
+		      Matrix V = e.getV();
+		      double[][] tabTemp= V.getArray();
+		      double[][] tabTemp2= new double [3][matrice.length];
+		      tabTemp2[0]= tabTemp[0];
+		      tabTemp2[1]= tabTemp[1];
+		      tabTemp2[2] = tabTemp[2];
+		      
+		   return tabTemp2;
+		}
+		
+		public static double[][] changerBase(double[][] matrice, double[][] nouvelleBase) throws Exception{
+			return(multiplier(matrice, nouvelleBase));
+		}
+		
+		public static double[][] ACP(String referenceAbsolutePath) throws Exception{
+			double[][] Xc = transpose(matriceCentre(referenceAbsolutePath));
+			
+			//System.out.println(base.length + " " + base[0].length);
+			
+			double[][] newBase;
+			double[][] matVarCov = matriceVarCov(Xc);
+			
+			/*for (int i = 0; i < matVarCov.length; i++){
+				for (int j = 0; j<matVarCov.length; j++)
+					System.out.print((int)matVarCov[i][j]+" ");
+				System.out.println();
+			}*/
+			
+			//System.out.println("base: " +base.length + " " + base[0].length);
+			
+			newBase = getVectPropres(matVarCov);
+			
+			//System.out.println("newBase: " + newBase.length + " " + newBase[0].length);
+			Xc = changerBase(Xc, transpose(newBase));
+			return Xc;
+		}
+		
+		public static double distance3D(double[] ref, double[] test){
+			double calcul = 0.;
+			for (int i=0; i<3; i++)
+				calcul = calcul + Math.pow((ref[i]-test[i]),2);
+			return Math.sqrt(calcul);
+		}
+		
+		 public static int getKnn(double[][] tabRef,double[] point, int k) {
+		        //Determinon les K plus proches voisins:
+		        //On trie le tableau pour recupere les k-PP.        
+		        Map<Double, Integer> dist = new HashMap<Double,Integer>();        	
+		        for (int i = 0; i<tabRef.length; i++)
+		        		dist.put(distance3D(tabRef[i], point),i%k);
+		        //On trie la map pour pouvoir recupere les k-plus proches voisins
+		        Map<Double, Integer> kNN = new TreeMap<Double, Integer>(dist);	        
+		        //On determine les occurences des classes:
+		        Set keys = kNN.keySet();
+		        Iterator it = keys.iterator();
+	            int[] value = new int[k];
+	            int kFinal = k;
+	            for (int i = 0; i<k; i++)
+	            	value[i] =0;
+		        while (it.hasNext()&&k>0) {
+		            Double key = (Double) it.next();
+		            value[kNN.get(key)]++;
+		            k--;
+		        }//end_while	        
+		        //En suite ,on determine la classe la plus frequente dans les kNN:
+		        int max = 0;
+		        int id = 0;
+		        for (int j = 0; j<kFinal; j++){
+		        	//System.out.println("val j :"+value[j]);
+		        	if (value[j] > max){
+		        		max = value[j];
+		        		id = j;
+		        	}
+		        	else{
+		        		if ( value[j] == max ){
+		        			id = j;
+		        		}
+		        	}
+		        		
+		        }
+		        return id;
+
+
+		}
+		 
+		public static int[][] kPlusProches(String referenceAbsolutePath, String testAbsolutePath, int k) throws Exception{
+			double[][] tabRef = ACP(referenceAbsolutePath);
+			double[][] tabTest = ACP(testAbsolutePath);
+			int[][] tabRetour= new int[nbOrdres][nbOrdres];
+			int indOrdre = 0; 
+			for(int i=0; i<tabTest.length; i++){
+				indOrdre = getKnn(tabRef, tabTest[i],k);
+				//System.out.println(indOrdre + " ");
+				
+				tabRetour[indOrdre][i%nbOrdres]++;
+			}
+			
+			return tabRetour;
+		}
+		
+		public static float Taux(int[][] matrice){
+
+			int trace = 0;
+			int horsDiag = 0;
+			for (int i = 0; i < nbOrdres; i++) {
+				trace += matrice[i][i];
+				for (int j = 0; j < nbOrdres; j++) {
+					if (i!=j) {
+						horsDiag += matrice[i][j];
+					}
+				}
+			}
+			float tauxReconnaissance = (float) (((float)trace/(float)(trace + horsDiag))*100.);
+			//float tauxErreur = (float) (float)horsDiag/(float)(trace + horsDiag)*100;
+			//System.out.println("trace = "+trace+" somme totale = "+(trace+horsDiag));
+			//System.out.println("taux de reconnaissance = "+tauxReconnaissance+"%");
+			//System.out.println("taux d'erreur = "+tauxErreur+"%");
+			return tauxReconnaissance;
+		}
+		
+		public static void main(String[] args) throws Exception {
 			/*String corpusBruite = "/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv";
 			String corpusNonBruite = "/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv";
 			System.out.println("------------------------------------------------TEST CORPUS BRUITE ------------------------------------------------");
@@ -205,10 +492,21 @@ public class myDTWtest2 {
 	        System.out.println("DTWHelperDefault - valeur distance Alpha-Bravo calculee : "+distanceAlphaBravodefault);
 	       */
 	        myDTW m = new myDTW();
-			m.matriceDeConfusion("/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/test",
-					"/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/corpus/dronevolant_bruite_csv/reference", 4);
-
+			m.matriceDeConfusion("/home/ubuntu/Master/TP1-MCS/corpus/corpus_enregistrement_perso/Ber",
+					"/home/ubuntu/Master/TP1-MCS/corpus/corpus_enregistrement_perso/referenceTim", 5);
 			
+			
+			int[][] tabRet = kPlusProches("/home/ubuntu/Master/TP1-MCS/corpus/corpus_enregistrement_perso/Ber",
+					"/home/ubuntu/Master/TP1-MCS/corpus/corpus_enregistrement_perso/referenceTim", 2);
+			for (int i=0; i < nbOrdres; i++){
+				for (int j=0; j < nbOrdres; j++)
+						System.out.print(tabRet[i][j]+" ");
+				System.out.println();
+			}
+			System.out.println("Grâce à la méthode de l'ACP et des k plus proche voisin,"
+					+ " nous obtenons un taux de reconnaissance de :" + Taux(tabRet));
+			
+					
 		}
 }
 

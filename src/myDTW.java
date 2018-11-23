@@ -151,7 +151,7 @@ public class myDTW extends DTWHelper {
 					fieldRef = new Field(mfccRef);
 					// Calculer la distance entre fieldTest et fieldRef 
 					d = DTWHelperDefault.DTWDistance(fieldTest, fieldRef);
-					System.out.println("d = " + d+ "[ "+testFiles.get(i)+" VS. "+refFiles.get(index)+" ]");
+					//System.out.println("d = " + d+ "[ "+testFiles.get(i)+" VS. "+refFiles.get(index)+" ]");
 					int temporar = j+l;
 					//System.out.println("num locuteur : " + l);
 					//System.out.println("num ordre : " + j);
@@ -191,7 +191,7 @@ public class myDTW extends DTWHelper {
 		}
 		tauxReconnaissance = (float) (((float)trace/(float)(nbrOrdre*nbrLocuteur))*100.);
 		tauxErreur = (float) (float)horsDiag/(float)(nbrOrdre*nbrLocuteur)*100;
-		System.out.println("trace = "+trace+" somme totale"+nbrOrdre*nbrLocuteur);
+		System.out.println("trace = "+trace+" somme totale = "+nbrOrdre*nbrLocuteur);
 		System.out.println("taux de reconnaissance = "+tauxReconnaissance+"%");
 		System.out.println("taux d'erreur = "+tauxErreur+"%");
 		return tauxReconnaissance;

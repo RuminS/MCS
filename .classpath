@@ -2,6 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-8-openjdk-amd64"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="/home/randriamalala/Documents/S1/MODEL_CALCUL_SCIENTIFIQUE/TP1-MCS/voice_analyzer.jar"/>
+	<classpathentry kind="lib" path="/home/ubuntu/Master/Calcul scientifique/TestDTWStudent/voice_analyzer.jar"/>
+	<classpathentry kind="lib" path="/home/ubuntu/Téléchargements/Jama-1.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
